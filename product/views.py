@@ -15,6 +15,10 @@ from product.filters import ProductFilter
 from rest_framework.filters import SearchFilter, OrderingFilter
 from rest_framework.pagination import PageNumberPagination
 from product.paginations import DefaultPagination
+# from rest_framework.permissions import IsAdminUser, AllowAny
+from api.permissions import IsAdminOrReadOnly, FullDjangoModelPermission
+from rest_framework.permissions import DjangoModelPermissions, DjangoModelPermissionsOrAnonReadOnly
+from product.permissions import IsReviewAuthorOrReadonly
 
 
 
@@ -175,6 +179,17 @@ class ProductViewSet(ModelViewSet):
     # ordering_fields = ['price']
     ordering_fields = ['price', 'updated_at']
 
+    # permission_classes = [IsAdminUser]
+    permission_classes = [IsAdminOrReadOnly]
+
+    # permission_classes = [DjangoModelPermissions]
+    # permission_classes = [FullDjangoModelPermission]
+    # permission_classes = [DjangoModelPermissionsOrAnonReadOnly]
+
+    # def get_permissions(self):
+    #     if self.request.method == 'GET':
+    #         return [AllowAny()]
+    #     return [IsAdminUser()]
    
 
     # def get_queryset(self):
@@ -197,6 +212,7 @@ class ProductViewSet(ModelViewSet):
 
 
 class CategoryViewSet(ModelViewSet):
+    permission_classes = [IsAdminOrReadOnly]
     queryset = Category.objects.annotate(
         product_count=Count('products')).all()
     serializer_class = CategorySerializer
@@ -284,6 +300,13 @@ class CategoryDetails(RetrieveUpdateDestroyAPIView):
 class ReviewViewSet(ModelViewSet):
     # queryset = Review.objects.all()
     serializer_class = ReviewSerializer
+    permission_classes = [IsReviewAuthorOrReadonly]
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(user=self.request.user)
 
     def get_queryset(self):
         return Review.objects.filter(product_id=self.kwargs['product_pk'])
