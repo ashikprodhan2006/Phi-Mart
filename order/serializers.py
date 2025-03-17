@@ -2,7 +2,11 @@ from rest_framework import serializers
 from order.models import Cart, CartItem, Order, OrderItem
 from product.models import Product
 from product.serializers import ProductSerializer
+from order.services import OrderService
 
+
+class EmptySerializer(serializers.Serializer):
+    pass
 
 
 class SimpleProductSerializer(serializers.ModelSerializer):
@@ -89,18 +93,45 @@ class CreateOrderSerializer(serializers.Serializer):
 
         return cart_id
 
-    # def create(self, validated_data):
-    #     user_id = self.context['user_id']
-    #     cart_id = validated_data['cart_id']
+    def create(self, validated_data):
+        user_id = self.context['user_id']
+        cart_id = validated_data['cart_id']
 
-    #     try:
-    #         order = OrderService.create_order(user_id=user_id, cart_id=cart_id)
-    #         return order
-    #     except ValueError as e:
-    #         raise serializers.ValidationError(str(e))
+        # cart = Cart.objects.get(pk=cart_id)
+        # cart_items = cart.items.select_related('product').all()
 
-    # def to_representation(self, instance):
-    #     return OrderSerializer(instance).data
+        # total_price = sum([item.product.price * item.quantity for item in cart_items])
+
+        # order = Order.objects.create(user_id=user_id, total_price=total_price)
+
+        # order_items = [
+        #     OrderItem(
+        #         order=order,
+        #         product=item.product,
+        #         price=item.product.price,
+        #         quantity=item.quantity,
+        #         total_price=item.product.price * item.quantity
+        #     )
+        #     for item in cart_items
+        # ]
+
+        # OrderItem.objects.bulk_create(order_items)
+        
+        # cart.delete()
+
+        # return order
+    
+        # print(user_id)
+        # print(cart_id)
+
+        try:
+            order = OrderService.create_order(user_id=user_id, cart_id=cart_id)
+            return order
+        except ValueError as e:
+            raise serializers.ValidationError(str(e))
+
+    def to_representation(self, instance):
+        return OrderSerializer(instance).data
 
 
 
@@ -110,6 +141,30 @@ class OrderItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrderItem
         fields = ['id', 'product', 'price', 'quantity', 'total_price']
+
+
+class UpdateOrderSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['status']
+    
+    # def update(self, instance, validated_data):
+    #     user = self.context['user']
+    #     new_status = validated_data['status']
+
+    #     if new_status == Order.CANCELED:
+    #         return OrderService.cancel_order(order=instance, user=user)
+        
+    #     # Admin kina
+    #     if not user.is_staff:
+    #         # raise serializers.ValidationError('You are not allowed to update this order')
+    #         raise serializers.ValidationError({'detail': 'You are not allowed to update this order'})
+        
+    #     # instance.status = new_status
+    #     # instance.save()
+    #     # return instance
+
+    #     return super().update(instance, validated_data)
 
 
 class OrderSerializer(serializers.ModelSerializer):
