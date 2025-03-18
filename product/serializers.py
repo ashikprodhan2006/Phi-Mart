@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from decimal import Decimal
-from product.models import Category, Product, Review
+from product.models import Category, Product, Review, ProductImage
 from django.contrib.auth import get_user_model
 
 
@@ -20,7 +20,7 @@ class CategorySerializer(serializers.ModelSerializer):
     #     count = Product.objects.filter(category=category).count()
     #     return count
 
-    product_count = serializers.IntegerField(read_only=True)
+    product_count = serializers.IntegerField(read_only=True, help_text="Return the number product in this category")
 
 
 
@@ -43,19 +43,24 @@ class CategorySerializer(serializers.ModelSerializer):
 #     def calculate_tax(self, product):
 #         # return product.price * Decimal(1.1)
 #         return round(product.price * Decimal(1.1), 2)
+    
 
+class ProductImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductImage
+        fields = ['id', 'image']
 
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    images = ProductImageSerializer(many=True, read_only=True)
     class Meta:
         # model = Product
         # fields = ['id', 'name', 'description', 'price',
         #           'stock', 'category'] 
         
         model = Product
-        fields = ['id', 'name', 'description', 'price',
-                  'stock', 'category', 'price_with_tax'] 
+        fields = ['id', 'name', 'description', 'price', 'stock', 'category', 'price_with_tax', 'images'] 
         
 
     price_with_tax = serializers.SerializerMethodField(method_name='calculate_tax')
@@ -76,13 +81,13 @@ class ProductSerializer(serializers.ModelSerializer):
     #         raise serializers.ValidationError("Password didn't pass")
 
 
-
     def create(self, validated_data):
         product = Product(**validated_data)
         product.other = 1
         product.save()
         return product
-    
+
+
 
 class SimpleUserSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField(
