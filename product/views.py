@@ -176,7 +176,7 @@ class ProductViewSet(ModelViewSet):
      - Support ordering by price and updated_at
     """
 
-    queryset = Product.objects.all()
+    # queryset = Product.objects.all()
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend, SearchFilter, OrderingFilter]
     # filterset_fields = ['category_id', 'price']
@@ -190,6 +190,10 @@ class ProductViewSet(ModelViewSet):
 
     # permission_classes = [IsAdminUser]
     permission_classes = [IsAdminOrReadOnly]
+
+    def get_queryset(self):
+        return Product.objects.prefetch_related('images').all()
+    
 
     @swagger_auto_schema(
         operation_summary='Retrive a list of products'
