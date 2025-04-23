@@ -17,3 +17,6 @@ class Migration(migrations.Migration):
             field=cloudinary.models.CloudinaryField(max_length=255, verbose_name='image'),
         ),
     ]
+
+
+
