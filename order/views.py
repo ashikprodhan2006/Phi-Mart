@@ -125,10 +125,10 @@ class OrderViewset(ModelViewSet):
         if getattr(self, 'swagger_fake_view', False):
             return Order.objects.none()
         
-        if self.request.user.is_staff:
-        #     return Order.objects.all()
-        # return Order.objects.filter(user=self.request.user)
-            return Order.objects.prefetch_related('items__product').all()
+        # if self.request.user.is_staff:
+        # #     return Order.objects.all()
+        # # return Order.objects.filter(user=self.request.user)
+        #     return Order.objects.prefetch_related('items__product').all()
         return Order.objects.prefetch_related('items__product').filter(user=self.request.user)
 
 
