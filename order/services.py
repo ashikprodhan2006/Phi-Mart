@@ -6,7 +6,7 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 class OrderService:
     @staticmethod
     def create_order(user_id, cart_id):
-        # with transaction.atomic():
+        with transaction.atomic():
             cart = Cart.objects.get(pk=cart_id)
             cart_items = cart.items.select_related('product').all()
 
@@ -56,3 +56,4 @@ A       B
 0     
         400
 """
+
