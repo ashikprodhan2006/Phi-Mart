@@ -17,7 +17,10 @@ SECRET_KEY = 'django-insecure-u#ftob%!0^7#@la!jgyfrp2e6&80z5a21l!dfvghl8bh1m2&9^
 # DEBUG = True
 DEBUG = False
 
-ALLOWED_HOSTS = [".vercel.app", '127.0.0.1']
+# ALLOWED_HOSTS = [".vercel.app", '127.0.0.1']
+
+ALLOWED_HOSTS = ['*']
+CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com', 'http://127.0.0.1:8000']
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -34,7 +37,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'drf_yasg',
     'django_filters',
-    'corsheaders',
     'rest_framework',
     'djoser',
     'api',
@@ -45,7 +47,6 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.middleware.security.SecurityMiddleware',
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -78,9 +79,6 @@ TEMPLATES = [
 # WSGI_APPLICATION = 'phi_mart.wsgi.application'
 WSGI_APPLICATION = 'phi_mart.wsgi.app'
 
-CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173'
-]
 
 INTERNAL_IPS = [
     # ...
@@ -100,14 +98,27 @@ INTERNAL_IPS = [
 #     }
 # }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': config('dbname'),
+#         'USER': config('user'),
+#         'PASSWORD': config('password'),
+#         'HOST': config('host'),
+#         'PORT': config('port'),
+#     }
+# }
+
+
+# For Postgres
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': config('dbname'),
-        'USER': config('user'),
-        'PASSWORD': config('password'),
-        'HOST': config('host'),
-        'PORT': config('port'),
+        'NAME': 'PhiMart',
+        'USER': 'postgres',
+        'PASSWORD': 'ashik',
+        'HOST': 'localhost',
+        'PORT': '5432'
     }
 }
 
@@ -162,6 +173,8 @@ STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 # STATIC_RILES_DIR = BASE_DIR / 'static'
 STATICRILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+# STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+
 
 MEDIA_URL = '/media/'
 
@@ -194,13 +207,6 @@ SIMPLE_JWT = {
 
 
 DJOSER = {
-    'EMAIL_FRONTEND_PROTOCOL': config('FRONTEND_PROTOCOL'),
-    'EMAIL_FRONTEND_DOMAIN': config('FRONTEND_DOMAIN'),
-    'EMAIL_FRONTEND_SITE_NAME': 'PhiMart',
-    'PASSWORD_RESET_CONFIRM_URL': 'password/reset/confirm/{uid}/{token}',
-    'ACTIVATION_URL': 'activate/{uid}/{token}',
-    'SEND_ACTIVATION_EMAIL': True,
-
     'SERIALIZERS': {
         'user_create': 'users.serializers.UserCreateSerializer',
         'current_user': 'users.serializers.UserSerializer'
@@ -219,10 +225,3 @@ SWAGGER_SETTINGS = {
    }
 }
 
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = config('EMAIL_HOST')
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)
-EMAIL_PORT = config('EMAIL_PORT')
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
