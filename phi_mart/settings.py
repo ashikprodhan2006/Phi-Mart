@@ -1,7 +1,8 @@
 from pathlib import Path
 from datetime import timedelta
-from decouple import config
-import cloudinary
+# from decouple import config
+# import cloudinary
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -111,15 +112,23 @@ INTERNAL_IPS = [
 
 
 # For Postgres
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'PhiMart',
+#         'USER': 'postgres',
+#         'PASSWORD': 'ashik',
+#         'HOST': 'localhost',
+#         'PORT': '5432'
+#     }
+# }
+
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'PhiMart',
-        'USER': 'postgres',
-        'PASSWORD': 'ashik',
-        'HOST': 'localhost',
-        'PORT': '5432'
-    }
+    'default': dj_database_url.config(
+        # Replace this value with your local database's connection string.
+        default='postgresql://phi_mart_db_user:AjEwrc8d1KmtxWFD5chuKSGnZNmWu2ri@dpg-d2k8qimmcj7s73a2divg-a.oregon-postgres.render.com/phi_mart_db',
+        conn_max_age=600
+    )
 }
 
 
@@ -147,12 +156,12 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Configuration       
-cloudinary.config( 
-    cloud_name = config('cloud_name'), 
-    api_key = config('cloudinary_api_key'), 
-    api_secret = config('api_secret'),  # Click 'View API Keys' above to copy your API secret
-    secure=True
-)
+# cloudinary.config( 
+#     cloud_name = config('cloud_name'), 
+#     api_key = config('cloudinary_api_key'), 
+#     api_secret = config('api_secret'),  # Click 'View API Keys' above to copy your API secret
+#     secure=True
+# )
 
 # Media storage setting
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
