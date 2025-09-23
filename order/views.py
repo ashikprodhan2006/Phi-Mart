@@ -16,7 +16,7 @@ from sslcommerz_lib import SSLCOMMERZ
 
 
 class CartViewSet(CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, GenericViewSet):
-    queryset = Cart.objects.all()
+    # queryset = Cart.objects.all()
     serializer_class = CartSerializer
     permission_classes = [IsAuthenticated]
 
@@ -146,33 +146,44 @@ class OrderViewset(ModelViewSet):
 
 @api_view(['POST'])
 def initiate_payment(request):
-    settings = { 'store_id': 'phima68139e1f0d669', 'store_pass': 'phima68139e1f0d669@ssl', 'issandbox': True }
+    user = request.user
+    amount = request.data.get("amount")
+    order_id = request.data.get("orderId")
+    num_items = request.data.get("numItems")
+
+    settings = { 'store_id': 'mdash68d2ab5a5c898', 'store_pass': 'mdash68d2ab5a5c898@ssl', 'issandbox': True }
     sslcz = SSLCOMMERZ(settings)
     post_body = {}
-    post_body['total_amount'] = 100.26
+    post_body['total_amount'] = amount
     post_body['currency'] = "BDT"
-    post_body['tran_id'] = "12345"
-    post_body['success_url'] = "your success url"
-    post_body['fail_url'] = "your fail url"
-    post_body['cancel_url'] = "your cancel url"
+    post_body['tran_id'] = f"txn_{order_id}"
+    post_body['success_url'] = "http://localhost:5173/dashboard/payment/success/"
+    post_body['fail_url'] = "http://localhost:5173/dashboard/payment/faild/"
+    post_body['cancel_url'] = "http://localhost:5173/dashboard/orders/"
     post_body['emi_option'] = 0
-    post_body['cus_name'] = "test"
-    post_body['cus_email'] = "test@test.com"
-    post_body['cus_phone'] = "01700000000"
-    post_body['cus_add1'] = "customer address"
+    post_body['cus_name'] = f"{user.first_name} {user.last_name}"
+    post_body['cus_email'] = user.email
+    post_body['cus_phone'] = user.phone_number
+    post_body['cus_add1'] = user.address
     post_body['cus_city'] = "Dhaka"
     post_body['cus_country'] = "Bangladesh"
+    # post_body['shipping_method'] = "Courier"
     post_body['shipping_method'] = "NO"
     post_body['multi_card_name'] = ""
-    post_body['num_of_item'] = 1
-    post_body['product_name'] = "Test"
-    post_body['product_category'] = "Test Category"
+    post_body['num_of_item'] = num_items
+    post_body['product_name'] = "E-commerce Products"
+    post_body['product_category'] = "General"
     post_body['product_profile'] = "general"
 
 
     response = sslcz.createSession(post_body) # API response
-    print(response)
+    # print(response)
 
-    return Response({"payment_url": "dumm_url"})
+    # return Response({"payment_url": "dumm_url"})
+    # return Response(response)
 
     
+
+    if response.get("status") == 'SUCCESS':
+        return Response({"payment_url": response['GatewayPageURL']})
+    return Response({"error": "Payment initiation failed"}, status=status.HTTP_400_BAD_REQUEST)
