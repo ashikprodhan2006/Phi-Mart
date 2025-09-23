@@ -2,7 +2,6 @@ from pathlib import Path
 from datetime import timedelta
 from decouple import config
 import cloudinary
-from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -79,14 +78,8 @@ TEMPLATES = [
 # WSGI_APPLICATION = 'phi_mart.wsgi.application'
 WSGI_APPLICATION = 'phi_mart.wsgi.app'
 
-# CORS_ALLOWED_ORIGINS = [
-#     'http://localhost:5173'
-# ]
-
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
-    "https://phimarts.vercel.app",
+    'http://localhost:5173'
 ]
 
 INTERNAL_IPS = [
@@ -233,15 +226,3 @@ EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=bool)
 EMAIL_PORT = config('EMAIL_PORT')
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
-
-
-
-
-
-
-
-CORS_ALLOW_HEADERS = list(default_headers) + [
-    "authorization",
-]
-
-CORS_ALLOW_CREDENTIALS = True
