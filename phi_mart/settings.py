@@ -134,12 +134,11 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-
-# Configuration       
+# Configuration
 cloudinary.config( 
-    cloud_name = config('cloud_name'), 
-    api_key = config('cloudinary_api_key'), 
-    api_secret = config('api_secret'),  # Click 'View API Keys' above to copy your API secret
+    cloud_name=config('cloud_name'), 
+    api_key=config('cloudinary_api_key'), 
+    api_secret=config('api_secret'),
     secure=True
 )
 
@@ -161,7 +160,8 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 # STATIC_RILES_DIR = BASE_DIR / 'static'
-STATICRILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
+
+STATICFILES_STORAGE = "whitenoise.storage.CompressedStaticFilesStorage"
 
 MEDIA_URL = '/media/'
 
