@@ -78,9 +78,36 @@ TEMPLATES = [
 # WSGI_APPLICATION = 'phi_mart.wsgi.application'
 WSGI_APPLICATION = 'phi_mart.wsgi.app'
 
+# CORS_ALLOWED_ORIGINS = [
+#     'http://localhost:5173',
+# ]
+
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:5173',
+    "https://phimart-clients-ab79.vercel.app",
+    "http://localhost:5173",
 ]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = [
+    "authorization",
+    "content-type",
+    "accept",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]
+
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "PATCH",
+    "DELETE",
+    "OPTIONS",
+]
+
 
 INTERNAL_IPS = [
     # ...
