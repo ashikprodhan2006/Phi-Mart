@@ -1,6 +1,6 @@
 from django.urls import path, include
 # from rest_framework.routers import DefaultRouter #SimpleRouter
-from product.views import ProductViewSet, CategoryViewSet, ReviewViewSet, ProductImageViewSet
+from product.views import ProductViewSet, CategoryViewSet, SubCategoryViewSet, ReviewViewSet, ProductImageViewSet
 from order.views import CartViewSet, CartItemViewSet, OrderViewset, initiate_payment, payment_success, payment_fail, payment_cancel, HasOrderedProduct
 from rest_framework_nested import routers
 
@@ -11,6 +11,7 @@ router = routers.DefaultRouter()
 # router.register('products', ProductViewSet)
 router.register('products', ProductViewSet, basename='products')
 router.register('categories', CategoryViewSet)
+router.register('subcategories', SubCategoryViewSet, basename='subcategories')
 router.register('carts', CartViewSet, basename='carts')
 router.register('orders', OrderViewset, basename='orders')
 

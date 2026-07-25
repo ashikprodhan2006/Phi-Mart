@@ -3,8 +3,8 @@ from django.http import HttpResponse
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from product.models import Product, Category, Review, ProductImage
-from product.serializers import ProductSerializer, CategorySerializer, ReviewSerializer, ProductImageSerializer
+from product.models import Product, Category, SubCategory, Review, ProductImage
+from product.serializers import ProductSerializer, CategorySerializer, SubCategorySerializer, ReviewSerializer, ProductImageSerializer
 from django.db.models import Count
 from rest_framework.views import APIView
 from rest_framework.mixins import CreateModelMixin, ListModelMixin
@@ -191,8 +191,12 @@ class ProductViewSet(ModelViewSet):
     # permission_classes = [IsAdminUser]
     permission_classes = [IsAdminOrReadOnly]
 
+    # def get_queryset(self):
+    #     return Product.objects.prefetch_related('images').all()
+
     def get_queryset(self):
-        return Product.objects.prefetch_related('images').all()
+        return Product.objects.select_related(
+            "subcategory", "subcategory__category").prefetch_related("images").all()
     
 
     @swagger_auto_schema(
@@ -263,22 +267,41 @@ class ProductImageViewSet(ModelViewSet):
 
 class CategoryViewSet(ModelViewSet):
     permission_classes = [IsAdminOrReadOnly]
-    queryset = Category.objects.annotate(product_count=Count('products')).all()
+    # queryset = Category.objects.annotate(product_count=Count('products')).all()
+    queryset = Category.objects.annotate(
+        product_count=Count("subcategories__products", distinct=True)).prefetch_related("subcategories").all()
     serializer_class = CategorySerializer
 
+
+class SubCategoryViewSet(ModelViewSet):
+    permission_classes = [IsAdminOrReadOnly]
+    queryset = SubCategory.objects.select_related("category").all()
+    serializer_class = SubCategorySerializer
+
+
+class SubCategoryList(ListCreateAPIView):
+    queryset = SubCategory.objects.select_related("category")
+    serializer_class = SubCategorySerializer
+
+
+class SubCategoryDetails(RetrieveUpdateDestroyAPIView):
+    queryset = SubCategory.objects.select_related("category")
+    serializer_class = SubCategorySerializer
     
 
 @api_view()
 def view_categories(request):
     # categories = Category.objects.all()
-    categories = Category.objects.annotate(product_count=Count('products')).all()
+    # categories = Category.objects.annotate(product_count=Count('products')).all()
+    categories = Category.objects.annotate(product_count=Count("subcategories__products", distinct=True)).all()
     serializer = CategorySerializer(categories, many=True)
     return Response(serializer.data)
 
 
 class ViewCategories(APIView):
     def get(self, request):
-        categories = Category.objects.annotate(product_count=Count('products')).all()
+        # categories = Category.objects.annotate(product_count=Count('products')).all()
+        categories = Category.objects.annotate(product_count=Count("subcategories__products", distinct=True)).all()
         serializer = CategorySerializer(categories, many=True)
         return Response(serializer.data)
 
@@ -291,26 +314,26 @@ class ViewCategories(APIView):
 
 @api_view()
 def view_specific_category(request, id):
-    category = get_object_or_404(Category.objects.annotate(product_count=Count('products')).all(), pk=id)
+    category = get_object_or_404(Category.objects.annotate(product_count=Count("subcategories__products", distinct=True)).all(), pk=id)
     serializer = CategorySerializer(category)
     return Response(serializer.data)
 
 
 class ViewSpecificCategory(APIView):
     def get(self, request, id):
-        category = get_object_or_404(Category.objects.annotate(product_count=Count('products')).all(), pk=id)
+        category = get_object_or_404(Category.objects.annotate(product_count=Count("subcategories__products", distinct=True)).all(), pk=id)
         serializer = CategorySerializer(category)
         return Response(serializer.data)
 
     def put(self, request, id):
-        category = get_object_or_404(Category.objects.annotate(product_count=Count('products')).all(), pk=id)
+        category = get_object_or_404(Category.objects.annotate(product_count=Count("subcategories__products", distinct=True)).all(), pk=id)
         serializer = CategorySerializer(category, data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
     
     def delete(self, request, id):
-        category = get_object_or_404(Category.objects.annotate(product_count=Count('products')).all(), pk=id)
+        category = get_object_or_404(Category.objects.annotate(product_count=Count("subcategories__products", distinct=True)).all(), pk=id)
         category.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -333,7 +356,8 @@ class CategoryList(ListCreateAPIView):
 
 
 class CategoryDetails(RetrieveUpdateDestroyAPIView):
-    queryset = Category.objects.annotate(product_count=Count('products')).all()
+    # queryset = Category.objects.annotate(product_count=Count('products')).all()
+    queryset = Category.objects.annotate(product_count=Count("subcategories__products", distinct=True)).all()
     serializer_class = CategorySerializer
 
     # def delete(self, request, id):

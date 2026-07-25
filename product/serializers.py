@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from decimal import Decimal
-from product.models import Category, Product, Review, ProductImage
+from product.models import Category, SubCategory, Product, Review, ProductImage
 from django.contrib.auth import get_user_model
 
 
@@ -9,10 +9,19 @@ from django.contrib.auth import get_user_model
 #     name = serializers.CharField()
 #     description = serializers.CharField()
 
+class SubCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SubCategory
+        fields = [
+            "id", "name", "description", "category",]
+
+
 class CategorySerializer(serializers.ModelSerializer):
+    subcategories = SubCategorySerializer(many=True, read_only=True)
+    
     class Meta:
         model = Category
-        fields = ['id', 'name', 'description', 'product_count']
+        fields = ['id', 'name', 'description', 'image', 'product_count', 'subcategories',]
 
     # product_count = serializers.SerializerMethodField(method_name='get_product_count')
 
@@ -21,7 +30,6 @@ class CategorySerializer(serializers.ModelSerializer):
     #     return count
 
     product_count = serializers.IntegerField(read_only=True, help_text="Return the number product in this category")
-
 
 
 # class ProductSerializer(serializers.Serializer):
@@ -61,7 +69,7 @@ class ProductSerializer(serializers.ModelSerializer):
         #           'stock', 'category'] 
         
         model = Product
-        fields = ['id', 'name', 'description', 'price', 'stock', 'category', 'price_with_tax', 'images'] 
+        fields = ['id', 'name', 'description', 'price', 'stock', 'subcategory', 'price_with_tax', 'images'] 
         
 
     price_with_tax = serializers.SerializerMethodField(method_name='calculate_tax')
